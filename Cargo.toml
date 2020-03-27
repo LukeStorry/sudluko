@@ -1,0 +1,8 @@
+[package]
+name = "sudluko"
+version = "0.1.0"
+authors = ["Luke Storry <luke@lukestorry.co.uk>"]
+edition = "2018"
+
+[dependencies]
+rocket = "0.4"

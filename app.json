@@ -1,0 +1,11 @@
+{
+  "name": "Sudluko",
+  "description": "A sudoku api",
+  "repository": "https://github.com/LukeStorry/sudluko",
+  "success_url": "/",
+  "keywords": ["rust", "rocket, suduko"],
+  "website": "https://sudluko.herokuapp.com/",
+  "env": {
+    "BUILDPACK_URL": "https://github.com/emk/heroku-buildpack-rust.git"
+  }
+}
