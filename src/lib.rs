@@ -22,20 +22,20 @@ type SudokuLine = [SudokuCell; 9];
 type SudokuBox = [[SudokuCell; 3]; 3];
 type Sudoku = [SudokuLine; 9];
 
-fn get_column(sudoku: Sudoku, colIndex: usize) -> SudokuLine {
-    assert!((0..9).contains(&colIndex));
-    sudoku.map(|line| line[colIndex])
+fn get_column(sudoku: Sudoku, col_index: usize) -> SudokuLine {
+    assert!((0..9).contains(&col_index));
+    sudoku.map(|line| line[col_index])
 }
 
-fn get_row(sudoku: Sudoku, rowIndex: usize) -> SudokuLine {
-    assert!((0..9).contains(&rowIndex));
-    sudoku[rowIndex]
+fn get_row(sudoku: Sudoku, row_index: usize) -> SudokuLine {
+    assert!((0..9).contains(&row_index));
+    sudoku[row_index]
 }
 
-fn get_box(sudoku: Sudoku, boxIndex: usize) -> SudokuBox {
-    assert!((0..9).contains(&boxIndex));
-    let start_row: usize = boxIndex;
-    let start_col: usize = boxIndex % 3;
+fn get_box(sudoku: Sudoku, box_index: usize) -> SudokuBox {
+    assert!((0..9).contains(&box_index));
+    let start_row: usize = box_index;
+    let start_col: usize = box_index % 3;
     [
         [
             sudoku[start_row][start_col],
@@ -55,8 +55,28 @@ fn get_box(sudoku: Sudoku, boxIndex: usize) -> SudokuBox {
     ]
 }
 
+fn check_valid_line(line: SudokuLine) -> bool {
+    let mut found = [0; 9];
+    for cell in line.iter() {
+        if let Some(value) = cell {
+            found[(*value - 1) as usize] += 1
+        }
+    }
+    !found.iter().any(|&x| x > 1)
+}
+
+fn check_valid_box(sbox: SudokuBox) -> bool {
+    let mut found = [0; 9];
+    for cell in sbox.iter().flatten() {
+        if let Some(value) = cell {
+            found[(*value - 1) as usize] += 1
+        }
+    }
+    !found.iter().any(|&x| x > 1)
+}
+
 #[cfg(test)]
-mod tests {
+mod access {
     #[test]
     fn can_create_sudoku_object() {
         let mut sudoku: super::Sudoku = [[Some(1); 9]; 9];
@@ -110,5 +130,29 @@ mod tests {
         ];
         let result: super::SudokuBox = super::get_box(sudoku, 3);
         assert_eq!(expected, result);
+    }
+}
+
+#[cfg(test)]
+mod validity {
+    #[test]
+    fn check_valid_line() {
+        let mut line: super::SudokuLine = [None; 9];
+        assert!(super::check_valid_line(line));
+        line[1] = Some(9);
+        assert!(super::check_valid_line(line));
+        (0..9).for_each(|i| line[i] = Some((9 - i) as u8));
+        assert!(super::check_valid_line(line));
+        line[1] = Some(9);
+        assert!(!super::check_valid_line(line));
+    }
+    #[test]
+    fn check_valid_box() {
+        let mut sbox: super::SudokuBox = [[None; 3]; 3];
+        assert!(super::check_valid_box(sbox));
+        sbox[0][1] = Some(9);
+        assert!(super::check_valid_box(sbox));
+        sbox[2][0] = Some(9);
+        assert!(!super::check_valid_box(sbox));
     }
 }
