@@ -2,17 +2,21 @@
 
 use rocket::{self, get, routes};
 
-/// Declare a handler.
+
+#[get("/")]
+fn home() -> rocket::response::Redirect {
+    rocket::response::Redirect::to("https://lukestorry.github.io/sudluko/")
+}
+
 #[get("/alive")]
 fn alive() -> &'static str {
     "It's Alive!"
 }
 
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![alive])
+    rocket::ignite().mount("/", routes![home, alive])
 }
 
-/// Start our server.
 fn main() {
     rocket().launch();
 }

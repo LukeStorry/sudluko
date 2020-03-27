@@ -5,11 +5,11 @@
 
 ### A sudoku api, written in [Rust](https://www.rust-lang.org), with [Rocket](https://rocket.rs).
 
----
 
-### [View Live](https://sudluko.herokuapp.com/)
 
----
+### [View Live](https://sudluko.herokuapp.com/alive)
+
+
 
 
 
