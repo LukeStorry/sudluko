@@ -27,7 +27,7 @@ fn deserialize_cell((cell_index, cell_char): (usize, char)) -> Result<SudokuCell
         )),
     }
 }
-fn deserialize(string: String) -> Result<Sudoku, String> {
+pub fn deserialize(string: String) -> Result<Sudoku, String> {
     if string.len() != 81 {
         return Err(format!(
             "Input string was {} chars long. Expected 81.",

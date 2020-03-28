@@ -8,7 +8,7 @@ use crate::utils::serialize;
 
 fn generate() -> Sudoku {
     let s: Sudoku = [[None; 9]; 9];
-    solve(s)
+    solve(s).unwrap()
 }
 
 pub fn generate_as_string() -> String {
