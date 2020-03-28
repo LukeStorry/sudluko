@@ -15,6 +15,15 @@ pub fn serialize(sudoku: Sudoku) -> String {
         .join("")
 }
 
+pub fn pretty(sudoku: Sudoku) -> String {
+    serialize(sudoku)
+        .chars()
+        .collect::<Vec<char>>()
+        .chunks(9)
+        .map(|r| r.iter().map(|c| c.to_string() + "  ").collect::<String>() + "\n")
+        .collect::<String>()
+}
+
 fn deserialize_cell((cell_index, cell_char): (usize, char)) -> Result<SudokuCell, String> {
     match cell_char {
         '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => {

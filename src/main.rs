@@ -1,7 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use rocket::{self, get, routes};
-use sudluko::generate_as_string;
+use sudluko::{generate_as_string, solve_as_string};
 
 #[get("/")]
 fn home() -> rocket::response::Redirect {
@@ -18,8 +18,18 @@ fn generate() -> String {
     generate_as_string()
 }
 
+#[get("/solve")]
+fn solve() -> String {
+    "Insert the Sudoku in the URL, with . for spaces.".to_string()
+}
+
+#[get("/solve/<sudoku>")]
+fn solver(sudoku: String) -> String {
+    solve_as_string(sudoku)
+}
+
 fn rocket() -> rocket::Rocket {
-    rocket::ignite().mount("/", routes![home, status, generate])
+    rocket::ignite().mount("/", routes![home, status, generate, solve, solver])
 }
 
 fn main() {
