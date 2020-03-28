@@ -7,7 +7,7 @@
 
 
 
-### [View Live](https://sudluko.herokuapp.com/alive)
+### [View Live](https://sudluko.herokuapp.com)
 
 
 
