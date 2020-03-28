@@ -17,7 +17,7 @@ impl<U, V> Mappable<U, V, [V; 9]> for [U; 9] {
         ]
     }
 }
-type SudokuCell = Option<u8>;
+type SudokuCell = Option<usize>;
 type SudokuLine = [SudokuCell; 9];
 type SudokuBox = [[SudokuCell; 3]; 3];
 type Sudoku = [SudokuLine; 9];
@@ -34,8 +34,8 @@ fn get_row(sudoku: Sudoku, row_index: usize) -> SudokuLine {
 
 fn get_box(sudoku: Sudoku, box_index: usize) -> SudokuBox {
     assert!((0..9).contains(&box_index));
-    let start_row: usize = box_index;
-    let start_col: usize = box_index % 3;
+    let start_row: usize = (box_index / 3) * 3;
+    let start_col: usize = (box_index % 3) * 3;
     [
         [
             sudoku[start_row][start_col],
@@ -56,23 +56,46 @@ fn get_box(sudoku: Sudoku, box_index: usize) -> SudokuBox {
 }
 
 fn check_valid_line(line: SudokuLine) -> bool {
-    let mut found = [0; 9];
+    let mut found = [false; 9];
     for cell in line.iter() {
         if let Some(value) = cell {
-            found[(*value - 1) as usize] += 1
+            if found[*value - 1] {
+                return false;
+            };
+            found[*value - 1] = true;
         }
     }
-    !found.iter().any(|&x| x > 1)
+    true
 }
 
 fn check_valid_box(sbox: SudokuBox) -> bool {
-    let mut found = [0; 9];
+    let mut found = [false; 9];
     for cell in sbox.iter().flatten() {
         if let Some(value) = cell {
-            found[(*value - 1) as usize] += 1
+            if found[*value - 1] {
+                return false;
+            };
+            found[*value - 1] = true;
         }
     }
-    !found.iter().any(|&x| x > 1)
+    true
+}
+
+fn check_valid(sudoku: Sudoku) -> bool {
+    let columns = (0..9).map(|i| get_column(sudoku, i));
+    let rows = (0..9).map(|i| get_row(sudoku, i));
+    for line in columns.chain(rows) {
+        if !check_valid_line(line) {
+            return false;
+        }
+    }
+    let boxes = (0..9).map(|i| get_box(sudoku, i));
+    for sbox in boxes {
+        if !check_valid_box(sbox) {
+            return false;
+        }
+    }
+    true
 }
 
 #[cfg(test)]
@@ -88,7 +111,7 @@ mod access {
     #[test]
     fn get_column() {
         let mut sudoku: super::Sudoku = [[None; 9]; 9];
-        (0..9).for_each(|i| sudoku[i][3] = Some(9 - (i as u8)));
+        (0..9).for_each(|i| sudoku[i][3] = Some(9 - i));
         let expected: super::SudokuLine = [
             Some(9),
             Some(8),
@@ -114,21 +137,21 @@ mod access {
     #[test]
     fn get_box() {
         let mut sudoku: super::Sudoku = [[None; 9]; 9];
-        sudoku[3][0] = Some(1);
-        sudoku[3][1] = Some(2);
-        sudoku[3][2] = Some(3);
-        sudoku[4][0] = Some(4);
-        sudoku[4][1] = Some(5);
-        sudoku[4][2] = Some(6);
-        sudoku[5][0] = Some(7);
-        sudoku[5][1] = Some(8);
-        sudoku[5][2] = Some(9);
+        sudoku[6][3] = Some(1);
+        sudoku[6][4] = Some(2);
+        sudoku[6][5] = Some(3);
+        sudoku[7][3] = Some(4);
+        sudoku[7][4] = Some(5);
+        sudoku[7][5] = Some(6);
+        sudoku[8][3] = Some(7);
+        sudoku[8][4] = Some(8);
+        sudoku[8][5] = Some(9);
         let expected: super::SudokuBox = [
             [Some(1), Some(2), Some(3)],
             [Some(4), Some(5), Some(6)],
             [Some(7), Some(8), Some(9)],
         ];
-        let result: super::SudokuBox = super::get_box(sudoku, 3);
+        let result: super::SudokuBox = super::get_box(sudoku, 7);
         assert_eq!(expected, result);
     }
 }
@@ -141,7 +164,7 @@ mod validity {
         assert!(super::check_valid_line(line));
         line[1] = Some(9);
         assert!(super::check_valid_line(line));
-        (0..9).for_each(|i| line[i] = Some((9 - i) as u8));
+        (0..9).for_each(|i| line[i] = Some(9 - i));
         assert!(super::check_valid_line(line));
         line[1] = Some(9);
         assert!(!super::check_valid_line(line));
@@ -154,5 +177,22 @@ mod validity {
         assert!(super::check_valid_box(sbox));
         sbox[2][0] = Some(9);
         assert!(!super::check_valid_box(sbox));
+    }
+    #[test]
+    fn check_valid() {
+        let mut sudoku: super::Sudoku = [[None; 9]; 9];
+        assert!(super::check_valid(sudoku));
+        sudoku[4][7] = Some(9);
+        assert!(super::check_valid(sudoku));
+        sudoku[3][6] = Some(9);
+        assert!(!super::check_valid(sudoku));
+        sudoku[3][6] = Some(8);
+        assert!(super::check_valid(sudoku));
+        sudoku[3][2] = Some(8);
+        assert!(!super::check_valid(sudoku));
+        sudoku[3][2] = Some(9);
+        assert!(super::check_valid(sudoku));
+        sudoku[8][2] = Some(9);
+        assert!(!super::check_valid(sudoku));
     }
 }
