@@ -119,7 +119,7 @@ mod validity_tests {
 #[cfg(test)]
 mod solve_tests {
     #[test]
-    fn can_generate_from_empty() {
+    fn from_empty() {
         let sudoku = [[None; 9]; 9];
         let result = super::solve(sudoku);
         assert_eq!(

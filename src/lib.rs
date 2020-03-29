@@ -1,15 +1,12 @@
+mod generator;
 mod models;
 mod solver;
 mod utils;
 
+use crate::generator::generate;
 pub use crate::models::Sudoku;
 use crate::solver::solve;
 use crate::utils::{deserialize, pretty, serialize};
-
-fn generate() -> Sudoku {
-    let s: Sudoku = [[None; 9]; 9];
-    solve(s).unwrap()
-}
 
 fn display(s: Sudoku) -> String {
     format!("{}\n\n{}", serialize(s), pretty(s))
