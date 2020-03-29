@@ -17,11 +17,27 @@ pub fn serialize(sudoku: Sudoku) -> String {
 
 pub fn pretty(sudoku: Sudoku) -> String {
     serialize(sudoku)
+        .replace(".", " ")
         .chars()
         .collect::<Vec<char>>()
         .chunks(9)
-        .map(|r| r.iter().map(|c| c.to_string() + "  ").collect::<String>() + "\n")
+        .enumerate()
+        .map(|(i, r)| {
+            format!(
+                "{}{}",
+                if i % 3 == 0 {
+                    "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n┇ "
+                } else {
+                    "\n─────────────────────────────────────\n┇ "
+                },
+                r.iter()
+                    .enumerate()
+                    .map(|(i, c)| c.to_string() + (if i % 3 == 2 { " ┇ " } else { " │ " }))
+                    .collect::<String>()
+            )
+        })
         .collect::<String>()
+        + "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 }
 
 fn deserialize_cell((cell_index, cell_char): (usize, char)) -> Result<SudokuCell, String> {
@@ -69,7 +85,7 @@ pub fn deserialize(string: String) -> Result<Sudoku, String> {
 #[cfg(test)]
 mod serialization_tests {
     #[test]
-    fn serialisation_works() {
+    fn works() {
         let expected: String = std::iter::repeat("12345689.").take(9).collect();
         let sudoku = [[
             Some(1),
@@ -84,6 +100,25 @@ mod serialization_tests {
         ]; 9];
         let result = super::serialize(sudoku);
         assert_eq!(expected, result);
+    }
+}
+#[cfg(test)]
+mod pretty_tests {
+    #[test]
+    fn works() {
+        let sudoku = [[
+            Some(1),
+            Some(2),
+            Some(3),
+            Some(4),
+            Some(5),
+            Some(6),
+            None,
+            Some(8),
+            Some(9),
+        ]; 9];
+        let result = super::pretty(sudoku);
+        println!("{}", result);
     }
 }
 
@@ -114,7 +149,7 @@ mod deserialization_tests {
         assert_eq!(expected_error, result);
     }
     #[test]
-    fn deserialization_works() {
+    fn works() {
         let input: String = std::iter::repeat("12345689.").take(9).collect();
         let result = super::deserialize(input);
         let expected = [[
